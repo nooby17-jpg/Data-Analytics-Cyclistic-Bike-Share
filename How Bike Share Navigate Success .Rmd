@@ -1,0 +1,575 @@
+---
+title: "Data Analytics For How Does a Bike-Share Navigate Speedy Success"
+author: "Nikhil Sharma"
+date: "2022-08-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Analytics For How Does a Bike-Share Navigate Speedy Success? A Case Study
+
+**Nikhil Sharma** Center for computer and Communication Technology, Chisopani, Sikkim <br /> Google/ Data Analytics Professional Certificate - Coursera
+
+#### Keywords:
+
+Data Analytics, Bike-Share, Succcess, Case Study
+
+#### Abstract:
+
+The marketing director of Cyclistic, a bike sharing company in Chicago, believes that the company's future success depends on maximizing the number of annual memberships. Therefore, the team wants to understand how casual riders and annual members use Cyclistic bikes differently. The objective of this notebook is to propose data analytic techniques to analyze a speedy success for a Bike-Share company. The analytic techniques will provide both descriptive and predictive analysis.In addition, data from the company's ERP system is integrated in the analysis. The proposed techniques will help the companies to improve their strategy to convert casual riders into annual members.
+
+## Introduction
+
+This exploratory analysis case study is towards Capstone project requirement for Google Data Analytics Professional Certificate. The case study involves a bikeshare company's data of its customer's trip details over a 12 month period (August 2021 - July 2022). The data has been made available by Motivate International Inc. under this license.
+
+The analysis will follow the 6 phases of the Data Analysis process by the Google: Ask, Prepare, Process, Analyze, Share, and Act.
+
+A brief explanation of these 6 phases:
+
+##### Ask
+
+-   Ask effective questions
+-   Define the scope of the analysis
+-   Define what success looks like
+
+##### Prepare
+
+-   Verify data's integrity
+-   Check data credibility and reliability
+-   Check data types
+-   Merge datasets
+
+##### Process
+
+-   Clean, Remove and Transform data
+-   Document cleaning processes and results
+
+##### Analyze
+
+-   Identify patterns
+-   Draw conclusions
+-   Make predictions
+
+##### Share
+
+-   Create effective visuals
+-   Create a story for data
+-   Share insights to stakeholders
+
+##### Act
+
+-   Give recommendations based on insights
+-   Solve problems
+-   Create something new
+
+## 1. Business Understanding
+
+The focus of this section is to understand the basic concepts of our Bike-share company. Project objectives are derived from the Director of Marketing and later converted into data science problem definitions.
+
+##### Scenario
+
+###### Please note that this is a fictional case study.
+
+In 2016, Cyclistic launched a successful bike-share offering. Since then, the program has grown to a fleet of 5,824 bicycles that are geotracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked from one station and returned to any other station in the system anytime.
+
+Until now, Cyclistic's marketing strategy relied on building general awareness and appealing to broad consumer segments. One approach that helped make these things possible was the flexibility of its pricing plans: single-ride passes, full-day passes, and annual memberships. Customers who purchase single-ride or full-day passes are referred to as casual riders. Customers who purchase annual memberships are Cyclistic members.
+
+Cyclistic's finance analysts have concluded that annual members are much more profitable than casual riders. Although the pricing flexibility helps Cyclistic attract more customers, Moreno believes that maximizing the number of annual members will be key to future growth. Rather than creating a marketing campaign that targets all-new customers, Director of Marketing believes there is a very good chance to convert casual riders into members. She/He notes that casual riders are already aware of the Cyclistic program and have chosen Cyclistic for their mobility needs.
+
+Director of Marketing has set a clear goal: Design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ, why casual riders would buy a membership, and how digital media could affect their marketing tactics.
+
+Marketing team needs to design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ.
+
+Director of Marketing has assigned me the first question to answer: How do annual members and casual riders use Cyclistic bikes differently?
+
+##### Stakeholders
+
+-   Director of Marketing
+-   Cyclist Executive Team
+
+##### Objective
+
+Hence, the objective for this analysis is to throw some light on how the two types of customers: annual members and casual riders, use Cyclistic bikes-hare differently, based on few parameters that can be calculated/ obtained from existing data.
+
+## 2. Data Understanding
+
+This section starts with initial data collection and proceeds with activities that targets understanding the data. These activities include ﬁrst insight into the data, identifying data for analytic purposes, discovering data quality issues and/or detecting interesting subsets to form hypothesis regarding previously un-detected patterns.
+
+##### Data Sources
+
+A total of 12 datasets have been made available for each month starting from June 2020 to July 2022. Each dataset captures the details of every ride logged by the customers of Cyclistic. This data that has been made publicly available has been scrubbed to omit rider's personal information.
+
+##### Documentation, Cleaning and Preparation of data for analysis
+
+The combined size of all the 12 datasets which is massive in size. Data cleaning in spreadsheets will be time-consuming and slow compared to SQL or R. I am choosing R simply because I could do both data wrangling and analysis/ visualizations in the same platform. It is also an opportunity for me to learn R in a better way.
+
+## 3. Data Preparation
+
+This section provides insight into the business problems before performing data modeling. The data preparation phase include activities, such as data selection, data transformation, data cleaning and data validation. Data preparation tasks may be performed several times and not in any given order. During this phase important issues are addressed like selecting the relevant data, cleaning of data, discarding unacceptable data and how the ERP system data can be integrated into the ﬁnal data sets.
+
+#### Loading libraries
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(geosphere)
+library(readr)
+library(janitor)
+library(data.table)
+library(tidyr)
+library(scales)
+```
+
+#### Load the 12 Datasets in different variable
+
+The 12-month historical trip data (in CSV format) are extracted and stored in one folder titled "bike_share_data". Next, the 12 CSV files are merged into one dataframe called "cyclist_data" by executing the following code:
+
+```{r}
+tripdata_202108 <- read.csv("./Bike_share_data/202108-divvy-tripdata.csv")
+tripdata_202109 <- read.csv("./Bike_share_data/202109-divvy-tripdata.csv")
+tripdata_202110 <- read.csv("./Bike_share_data/202110-divvy-tripdata.csv")
+tripdata_202111 <- read.csv("./Bike_share_data/202111-divvy-tripdata.csv")
+tripdata_202112 <- read.csv("./Bike_share_data/202112-divvy-tripdata.csv")
+tripdata_202201 <- read.csv("./Bike_share_data/202201-divvy-tripdata.csv")
+tripdata_202202 <- read.csv("./Bike_share_data/202202-divvy-tripdata.csv")
+tripdata_202203 <- read.csv("./Bike_share_data/202203-divvy-tripdata.csv")
+tripdata_202204 <- read.csv("./Bike_share_data/202204-divvy-tripdata.csv")
+tripdata_202205 <- read.csv("./Bike_share_data/202205-divvy-tripdata.csv")
+tripdata_202206 <- read.csv("./Bike_share_data/202206-divvy-tripdata.csv")
+tripdata_202207 <- read.csv("./Bike_share_data/202207-divvy-tripdata.csv")
+```
+
+#### Check data structures and data types for all data frames for data integrity
+
+```{r}
+str(tripdata_202108)
+str(tripdata_202109)
+str(tripdata_202110)
+str(tripdata_202111)
+str(tripdata_202112)
+str(tripdata_202201)
+str(tripdata_202202)
+str(tripdata_202203)
+str(tripdata_202204)
+str(tripdata_202205)
+str(tripdata_202206)
+str(tripdata_202207)
+```
+
+### Data transformation and cleaning
+
+start_lat, start_lng, end_lat, and end_lng are not consistent in all datasets. The ones in tripdata_202207 are char vs. the others are int. Convert the inconsistent ones from char to int datatype and load it in the same variable name to overwrite the data with consistent data types.
+
+```{r}
+tripdata_202207 <- tripdata_202207 %>% mutate(start_lat = as.integer(start_lat),start_lng = as.integer(start_lng), end_lat = as.integer(end_lat), end_lng = as.integer(end_lng))
+```
+
+### Combining the different datasets into one single dataframe
+
+```{r}
+  all_trips <- bind_rows(tripdata_202108, tripdata_202109, tripdata_202110, tripdata_202111, tripdata_202112, tripdata_202201, tripdata_202202, tripdata_202203, tripdata_202204, tripdata_202205,tripdata_202206, tripdata_202207)
+
+str(all_trips)
+```
+
+### Further Cleaning Up!
+
+As we checked the structure of dataframe "all_trips" we found that started_at & ended_at is in 'char' data type instead of 'datetime' data type. Lets convert them to right data types.
+
+```{r}
+all_trips[['started_at']] <- ymd_hms(all_trips[['started_at']])
+all_trips[['ended_at']] <- ymd_hms(all_trips[['ended_at']])
+
+str(all_trips)
+
+```
+
+Now it look good!
+
+### Now we should rename the columns name for better readablity and undersrtanding
+
+While renaming don't forget to overwrite your variable again to use it later because rename() function change the name just for current use of code. So, it is better to store the change in our variable after each code you run!
+
+```{r}
+all_trips <- all_trips %>%
+    rename(ride_type = rideable_type, 
+           start_time = started_at,
+           end_time = ended_at,
+           customer_type = member_casual)
+glimpse(all_trips)
+
+```
+
+### Add new columns to make it easier to understand
+
+You can see that start_time and end_time is consisting of both date and time which sometime can be lead to problem and harder to analyze th data and we do not want this while analyzing our data. So, it's better we make new columns for date and time separately.
+
+```{r}
+#column for day of the week the trip started
+all_trips$day_of_the_week <- format(as.Date(all_trips$start_time),'%a')
+
+#column for month when the trip started
+all_trips$month <- format(as.Date(all_trips$start_time),'%b_%y')
+#column for year when the trip started (for filtertaion)
+all_trips$year <- format(as.Date(all_trips$start_time),'%y')
+
+#column for time of the day when the trip started
+#Time element needs to be extracted from start_time. However, as the times must be in POSIXct
+#(only times of class POSIXct are supported in ggplot2), a two-step conversion is needed. 
+#First the time is converted to a character vector, effectively stripping all the date information. 
+#The time is then converted back to POSIXct with today’s date – the date is of no interest to us,
+#only the hours-minutes-seconds are.
+all_trips$time <- format(all_trips$start_time, format = "%H:%M")
+all_trips$time <- as.POSIXct(all_trips$time, format = "%H:%M")
+
+#column for trip duration in min
+all_trips$trip_duration <- (as.double(difftime(all_trips$end_time, all_trips$start_time)))/60
+
+#column for distance of the trip in Kilometers
+ all_trips <- mutate(all_trips, distance_km = distHaversine(cbind(start_lng, start_lat), cbind(end_lng, end_lat))*0.001)
+
+# check the dataframe to verify changes
+glimpse(all_trips)
+```
+
+It's all good to go but before moving forward we have to check that trip-duration has any negative values or not.
+
+```{r}
+# checking for trip lengths less than 0
+nrow(subset(all_trips,trip_duration < 0))
+# checking for year which are below than 2021
+nrow(subset(all_trips, year < 21))
+# checking for year which are above than 2022
+nrow(subset(all_trips,year > 22))
+#checking for test rides that were made by company for quality checks
+nrow(subset(all_trips, start_station_name %like% "TEST"))
+nrow(subset(all_trips, start_station_name %like% "test"))
+nrow(subset(all_trips, start_station_name %like% "Test"))
+```
+
+As there are 400 rows with trip_duration less than 0 mins,1043325 rows of data misplaced and they are below 2021, 468008 misplace data that are above 2022, and 1 trips that were test rides, we will remove these observations from our dataframe as they contribute to only about 0.007% of the total rows. We will create a new dataframe deviod of these obseravtions without making any changes to the existing dataframe
+
+```{r}
+
+#remove year which is not required for our analysis which are below 2021
+all_trips_final <- all_trips[!(all_trips$year < 21),]
+
+#remove year which is not required for our analysis which are above 2022
+all_trips_final <- all_trips_final[!(all_trips_final$year > 22),]
+
+  # remove negative trip durations 
+all_trips_final <- all_trips_final[!(all_trips_final$trip_duration < 0),]
+
+#remove test rides
+all_trips_final<- all_trips_final[!( all_trips_final$start_station_name %like% "Test"),]
+
+
+#check dataframe
+glimpse(all_trips_final)
+
+```
+
+It is important to make sure that customer_type column has only two distinct values.
+
+```{r}
+# checking count of distinct values
+table(all_trips_final$customer_type)
+#aggregating total trip duration by customer type
+setNames(aggregate(trip_duration ~ customer_type, all_trips_final, sum), c("customer_type", "total_trip_duration(mins)"))
+
+#The datasets contain missing values as listed below. This may cause inaccuracies in the data analysis.
+sapply(all_trips_final, function(x) sum(is.na(x)))
+
+```
+
+## 4. Exploratory Analysis
+
+Exploratory data analysis (EDA) is primarily a graphic approach that provides a ﬁrst insight into the data. There are no formal set of rules that can be used in EDA, however, common approaches are: summary statistics, correlation, visualization and aggregation.Summary statistics or univariate analysis is the ﬁrststep that helps us to understand data. Univariate analysis is the simplest form of data analysis where the data being analyzed contains only one variable. Further, data correlation or multivariate analysis helps us to ﬁnd relationships between two or more variables.
+
+Finding connections between variables also has a crucial impact on choosing and building the predictive model(s). Data visualization helps us to gain perspective into the data, such as to ﬁnd anomalies and to detect outliers. Finally, data aggregation helps us to group data from coarser to ﬁner granularity in order to improve understanding.
+
+The dataframe is now ready for descriptive analysis that will help us uncover some insights on how the casual riders and members use Cyclistic ride-share differently and will analyse the user trends based on the historical data from August 2021 to July 2022.
+
+### Key Findings
+
+###### The data analysis revealed the following:
+
+-   Annual members made 857,149 more trips compared to casual riders. This is expected because the annual members paid a fixed fee for unlimited 45-minute rides, which may explain the propensity to maximize bike usage.
+
+-   The demand for bike rental increases during the summer period and decreases during the winter period. This observation is similar across casual riders and annual members. One plausible reason for this observation is that people are more likely to go out during the summer and less likely to ride a bike during the winter.
+
+-   Among the casual riders, Saturdays and Sundays are the most popular days. However, the same was not observed in the annual members; bike usage dropped by around 11.3% from weekday to weekend.
+
+-   For casual riders, the top 5 start and end bike stations are located near attractions. In contrast, for annual members, the top 5 start and end bike stations are located near residential areas.
+
+### Number of rides completed by user type
+
+The annual members (referred to as members in the chart) made 856,425 more trips than the casual riders.
+
+```{r}
+  ggplot(data= all_trips_final, aes(x=customer_type)) +
+  geom_bar(fill = "#EF5B0C") +
+  labs(
+    title = "Number of rides completed by user type",
+    subtitle = "For the period between August 2021 and July 2022",
+    x = "User type",
+    y = "Number of rides (in millions)") +
+  scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+  geom_text(stat='count', aes(label=..count..), vjust=+2, color="white")
+
+```
+
+### Total Distance (in Km) traveled by the User type
+
+The annual members traveled 1,405,123 kilometers more than the casual riders. When computing this distance between the starting and ending bike station (by long_lat coordinates), it is assumed that the riders traveled from one point to another without making any detours.
+
+Please note that this data may not be entirely accurate because there were 4,076 missing values in distance_km column. This is a result of 4,076 missing values in both end_lat and end_lng column as highlighted in the "Data Preparation" section.
+
+```{r}
+
+distance_travelled <- all_trips_final %>% 
+  group_by(customer_type) %>%
+  summarise(distance_km=sum(distance_km, na.rm=TRUE)) 
+
+ggplot(distance_travelled, aes(x=customer_type, y=distance_km)) +
+  geom_bar(stat = "identity", fill= "#3120E0") +
+  labs(
+    title = "Distance traveled by user type",
+    subtitle = "For the period between August 2021 and July 2022",
+    x = "User type",
+    y = "Distance traveled (kilometers)") +
+  scale_y_continuous(labels = label_number(suffix = " M", scale = 2e-6)) +
+  geom_text(aes(label=round(stat(y),2)), vjust=+2, color="white")
+```
+
+Although annual members traveled longer total distances, the average distance traveled between annual members and casual riders is roughly the same
+
+```{r}
+average_distance_user_type <- all_trips_final %>% 
+  group_by(customer_type) %>%
+  summarise(average_distance_km=mean(distance_km, na.rm=TRUE)) 
+
+print(average_distance_user_type)
+
+
+```
+
+### How much hour cycled by user type
+
+Annual members cycled 5,398,622 hours less than casual riders.
+
+```{r}
+
+cycling_hour <- all_trips_final %>%
+  group_by(customer_type) %>%
+  summarise( time_hrs = sum(trip_duration,  na.rm=TRUE))
+
+cycling_hour <- cycling_hour %>%
+  group_by(customer_type) %>%  summarise( time_hrs = time_hrs/60)
+
+ggplot(cycling_hour, aes(x=customer_type, y=time_hrs)) +
+  geom_bar(stat = "identity", fill = "#FFEA11") +
+  labs(
+    title = "Hours cycled by user type",
+    subtitle = "For the period between August 2021 and July  2022",
+    x = "User type",
+    y = "Hours cycled") +
+  scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+  geom_text(aes(label=round(time_hrs,2)), vjust=+2, color="black")
+
+```
+
+### Bike preference by user type
+
+Classic bike is the most preferred bike type among both casual riders and annual members. While docked bike is completely ignored by the annual members.
+
+```{r}
+
+bike_type_preference <- all_trips_final %>%
+  group_by(customer_type, ride_type) %>%
+  summarise(count_of = n())
+
+ggplot(bike_type_preference, aes(x=customer_type, y= count_of, fill=ride_type)) +
+  geom_bar(stat="identity", position = position_dodge(width = 0.75), width = 0.75 ) +
+  labs(
+    title = "Bike preference by user type",
+    subtitle = "For the period between August 2021 and July 2022",
+    fill = "Bike type",
+    x = "User type",
+    y = "Number of users") +
+  scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
+
+
+```
+
+### Number of rides completed during each day by user type
+
+Among the casual riders, there is a visible increase of 61.3% in bike rentals on weekends . This suggests that the casual riders used the bikes for leisure purposes predominantly.
+
+On the contrary, there is a slight decrease of 9.1% in bike rentals on weekends among the annual members. This suggests that the annual members used the bikes for non-leisure or work purposes predominantly.
+
+```{r}
+
+all_trips_final$day_of_the_week <- ordered(all_trips_final$day_of_the_week, levels=c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+all_trips_final$month <- ordered(all_trips_final$month, levels=c("Aug_21", "Sep_21", "Oct_21",
+                                                          "Nov_21", "Dec_21", "Jan_22", "Feb_22", "Mar_22", 
+                                                           "Apr_22", "May_22", "Jun_22", "Jul_22"))
+all_trips_final %>% 
+  group_by(customer_type, day_of_the_week) %>%  
+  summarise(number_of_rides = n(),average_duration_mins = mean(trip_duration)) %>% 
+  arrange(customer_type, desc(number_of_rides))
+
+all_trips_final %>%  
+  group_by(customer_type, day_of_the_week) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(customer_type, day_of_the_week)  %>% 
+  ggplot(aes(x = day_of_the_week, y = number_of_rides, fill = customer_type)) +
+  labs(title ="Total trips made my customer type per week",
+        subtitle = "For the period between August 2021 and July 2022",
+    x = "Week Days",
+    y = "Number of rides per week"
+       ) +
+  geom_col(width=0.5, position = position_dodge(width=0.5)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+```
+
+### Number of rides completed during each month by user type
+
+The Summmer period (around March to May) and the Autumn(Fall) period (around September to November) saw an increase in rides and it peaked on start of summer (June) and start of Autumn(September) ,while the graphs show a sudden decrease during Monsoon period (around July and August) and winter period (around December to February) saw a marked reduction in rides completed. This trend is similar in both user type, likely because people are less likely to go out in the monsoon and winter.
+
+```{r}
+
+unique(all_trips$month)
+
+all_trips_final %>% 
+  group_by(customer_type, month) %>%  
+  summarise(number_of_rides = n(),`average_duration_(mins)` = mean(trip_duration, na.rm= TRUE)) %>% 
+  arrange(customer_type,desc(number_of_rides))
+
+all_trips_final %>%  
+  group_by(customer_type, month) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(customer_type, month)  %>% 
+  ggplot(aes(x = month, y = number_of_rides, fill = customer_type)) +
+  labs(title ="Total trips made by customer type during each Month",
+        subtitle = "For the period between August 2021 and July 2022",
+    x = "month",
+    y = "Number of rides per month"
+       ) +
+  theme(axis.text.x = element_text(angle = 30)) +
+  geom_col(width=0.5, position = position_dodge(width=0.5)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+
+```
+
+### Number of bike demand over 24hr of period (a day)
+
+For the members, there seems to be two distinct peak demand hours: 03-05 PM and 09-10:30 PM, the latter one coinciding with the peak demand hours of casual riders as well. One could probably hypothesize that office-goers make up majority of the members profile due to demand in both morning and evening hours, but we need more data to substantiate this assumption.
+
+```{r}
+all_trips_final %>%  
+  group_by(customer_type, time) %>% 
+  summarise(number_of_trips = n()) %>%
+  ggplot(aes(x = time, y = number_of_trips, color = customer_type, group = customer_type)) +
+  geom_line() +
+  scale_x_datetime(date_breaks = "1 hour", minor_breaks = NULL,
+                   date_labels = "%H:%M", expand = c(0,0)) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(title ="Average Demand over 24 hours of a day",subtitle='For the period between August 2021 and July 2022',Y = 'Number of trips', x = "Time of the day")
+```
+
+### Top 5 start stations by user types
+
+For the casual riders, the top five start stations are largely located near places of attractions . This suggests that the casual riders rented bikes to tour around the attractions.
+
+For annual members, the top five start stations are largely located near residential areas . This suggests that the annual members rented bikes for non-leisure or work purposes.
+
+```{r}
+top_station <- all_trips_final %>%
+  group_by(customer_type, start_station_name) %>%
+  summarise(count_of=n()) %>%
+  arrange(desc(count_of)) %>%
+  na.omit(start_station_name)
+
+  ## Table 1.1 - By casual riders ##
+top_station_casual <- filter(top_station, customer_type =="casual") %>%
+  rename(number_of_trips = count_of) %>%
+  slice(1:5)
+
+  #Table 1.2 - By members ##
+top_station_member <- filter(top_station, customer_type =="member") %>%
+  rename(number_of_trips = count_of) %>%
+  slice(1:5)
+
+print(top_station_casual)
+
+```
+
+```{r}
+print(top_station_member)
+
+```
+
+### Top 5 end stations by user types
+
+The top five end stations are similar to the top five start stations as described earlier.
+
+```{r}
+
+top_end_stations <- all_trips_final %>%
+  group_by(customer_type, end_station_name) %>%
+  summarise(count_of=n()) %>%
+  arrange(desc(count_of)) %>%
+  na.omit(end_station_name)
+
+  ## table for top_end_stations_casual  - By casual riders ##
+top_end_stations_casual <- filter(top_end_stations, customer_type =="casual") %>%
+  rename(number_of_trips = count_of) %>%
+  slice(1:5)
+
+  #table for top_end_stations_member - By members ##
+top_end_stations_member <- filter(top_end_stations, customer_type =="member") %>%
+  rename(number_of_trips = count_of) %>%
+  slice(1:5)
+
+print(top_end_stations_casual)
+
+```
+
+```{r}
+
+print(top_end_stations_member)
+```
+
+## 5. Evaluation
+
+#### Recommendation
+
+##### Three key recommendations are proposed to convert casual riders to annual members:
+
+-   Identify casual riders who typically start and end their ride sessions near residential areas and offer incentives (e.g. discounts, lucky draws, etc) to \* convert them into annual members.
+-   Offer an annual membership for weekday rental to increase number of annual members.
+-   Conduct a market survey with the casual riders, asking if they would purchase an annual package if there is a bike station near their residence. If the response is positive, consider identifying key residential areas to build new bike stations.
+
+##### Two other recommendations are proposed to increase sales:
+
+-   Partner with tour operators to offer a combination package (e.g. attraction pass + bike pass) to increase number of casual riders.
+-   Increase marketing campaigns during the summer and Autumn season.
+
+##### Further exploration
+
+-   Collect data to assess whether there are sufficient bikes to cater to the demand in the top five bike stations
+-   Conduct marketing promotions and collect price vs demand data to determine the appropriate price point.
+-   Occupation of member riders - this data could be used to target non-members who come under similar occupation
+-   Age and gender profile - Again, this data could be used to study the category of riders who can be targeted for attracting new members.
+
+## 6. Resources
+
+-   [Stack Overflow](https://stackoverflow.com/)
+-   [RDocumentation](https://www.rdocumentation.org/)
+-   [RStudio](https://community.rstudio.com/) and [Kaggle](https://www.kaggle.com/) community
